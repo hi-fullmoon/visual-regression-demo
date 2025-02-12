@@ -16,6 +16,7 @@ async function main() {
       '--single-process',
       '--disable-features=IsolateOrigins,site-per-process',
       '--disable-blink-features=AutomationControlled',
+      '--font-render-hinting=none',
     ],
   });
   const page = await browser.newPage();
