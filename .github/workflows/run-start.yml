@@ -1,4 +1,4 @@
-name: Run Yarn Start
+name: Run Pnpm Start
 
 on:
   push:
@@ -20,10 +20,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'yarn'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
-      - name: Run yarn start
-        run: yarn start
+      - name: Run pnpm start
+        run: pnpm start
