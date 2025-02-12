@@ -39,7 +39,7 @@ jobs:
         run: pnpm start
 
       - name: Upload diff images
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: diff-images
           path: |
