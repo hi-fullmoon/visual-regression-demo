@@ -6,10 +6,15 @@ import { config } from './config.js';
 
 async function main() {
   const browser = await puppeteer.launch({
-    headless: false,
-    launchOptions: {
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],
-    },
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu',
+      '--single-process',
+    ],
   });
   const page = await browser.newPage();
   await page.setViewport({ width: 1920, height: 934 });
