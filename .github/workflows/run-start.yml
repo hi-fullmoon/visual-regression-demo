@@ -37,3 +37,12 @@ jobs:
 
       - name: Run pnpm start
         run: pnpm start
+
+      - name: Upload diff images
+        uses: actions/upload-artifact@v3
+        with:
+          name: diff-images
+          path: |
+            *.png
+            !node_modules/
+          retention-days: 7
