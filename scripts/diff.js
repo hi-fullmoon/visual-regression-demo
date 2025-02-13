@@ -9,8 +9,12 @@ export function diff(target, benchmark) {
   const { width, height } = img1;
   const diff = new PNG({ width, height });
 
-  pixelmatch(img1.data, img2.data, diff.data, width, height, { threshold: 0.1 });
+  const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height, {
+    threshold: 0.1,
+  });
 
-  fs.writeFileSync('kms-knowledge-page-diff.png', PNG.sync.write(diff));
-  console.log('Diff image saved to kms-knowledge-page-diff.png');
+  if (numDiffPixels > 0) {
+    fs.writeFileSync('kms-home-page-diff.png', PNG.sync.write(diff));
+    console.log('Diff image saved to kms-home-page-diff.png');
+  }
 }

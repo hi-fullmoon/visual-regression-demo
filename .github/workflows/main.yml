@@ -1,4 +1,4 @@
-name: Run Pnpm Start
+name: Image Diff
 
 on:
   push:
@@ -46,8 +46,26 @@ jobs:
             echo "No fonts directory found, skipping font installation."
           fi
 
-      - name: Run pnpm start
-        run: pnpm start
+      - name: Check if benchmark-images exists
+        id: check_benchmark
+        run: |
+          if [ ! -d "benchmark-images" ]; then
+            echo "first_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "first_run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run pnpm diff
+        run: pnpm diff
+
+      - name: Commit benchmark images if first run
+        if: steps.check_benchmark.outputs.first_run == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add benchmark-images
+          git commit -m "chore: add initial benchmark images"
+          git push
 
       - name: Upload diff images
         uses: actions/upload-artifact@v4

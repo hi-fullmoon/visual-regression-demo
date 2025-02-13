@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import dayjs from 'dayjs';
+import fs from 'fs';
 import { login } from './login.js';
 import { diff } from './diff.js';
 import { config } from './config.js';
@@ -48,23 +49,24 @@ async function main() {
       });
     });
 
-  await page.waitForSelector('#root');
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  const root = await page.$('#root');
+  if (!fs.existsSync('benchmark-images')) {
+    fs.mkdirSync('benchmark-images');
+    const pagePath = `benchmark-images/kms-home-page.png`;
+    await page.screenshot({ path: pagePath, fullPage: true });
+    await browser.close();
+    return;
+  }
+
   const pagePath = `kms-home-page-${dayjs().format('YYYYMMDDHHmm')}.png`;
-  await root.screenshot({
+  await page.screenshot({
     path: pagePath,
-    clip: {
-      x: 0,
-      y: 0,
-      width: root.boundingBox().width,
-      height: root.boundingBox().height,
-    },
+    fullPage: true,
   });
-
   await browser.close();
 
-  diff(pagePath, 'kms-home-page.png');
+  diff(pagePath, 'benchmark-images/kms-home-page.png');
 }
 
 main();
