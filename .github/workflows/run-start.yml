@@ -39,8 +39,12 @@ jobs:
       - name: Install custom fonts
         run: |
           sudo mkdir -p /usr/share/fonts/custom
-          sudo cp -r fonts/* /usr/share/fonts/custom/
-          sudo fc-cache -fv
+          if [ -d "fonts" ]; then
+            sudo cp -r fonts/* /usr/share/fonts/custom/
+            sudo fc-cache -fv
+          else
+            echo "No fonts directory found, skipping font installation."
+          fi
 
       - name: Run pnpm start
         run: pnpm start
