@@ -54,6 +54,12 @@ async function main() {
   const pagePath = `kms-home-page-${dayjs().format('YYYYMMDDHHmm')}.png`;
   await root.screenshot({
     path: pagePath,
+    clip: {
+      x: 0,
+      y: 0,
+      width: root.boundingBox().width,
+      height: root.boundingBox().height,
+    },
   });
 
   await browser.close();
