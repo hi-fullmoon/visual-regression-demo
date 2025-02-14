@@ -9,67 +9,46 @@ on:
       - feat/cypress
 
 jobs:
-  cypress-run:
+  test-chrome-90:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        chrome-version: [100, 120]
-    name: Chrome ${{ matrix.chrome-version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgbm-dev libnss3 libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libxrandr2 libxss1 libatk-bridge2.0-0 libgtk-3-0
-          sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
-          sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji fonts-freefont-ttf
-
-      - name: Install Chrome ${{ matrix.chrome-version }}
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: ${{ matrix.chrome-version }}
-
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Chrome 90
+        uses: browser-actions/setup-chrome@v1
         with:
-          version: 8
+          chrome-version: 90.0.4430.212
+
+      - name: Run Cypress tests on Chrome 90
+        run: npx cypress run --browser chrome
+
+  test-chrome-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
-      - name: Install custom fonts
-        run: |
-          sudo mkdir -p /usr/share/fonts/custom
-          if [ -d "fonts" ]; then
-            sudo cp -r fonts/* /usr/share/fonts/custom/
-            sudo fc-cache -fv
-          else
-            echo "No fonts directory found, skipping font installation."
-          fi
-
-      - name: Set up Cypress
-        uses: cypress-io/github-action@v6
+      - name: Setup Latest Chrome
+        uses: browser-actions/setup-chrome@v1
         with:
-          browser: chrome
-          headless: true
-          config-file: cypress.config.ts
-          record: false
+          chrome-version: latest
 
-      - name: Run Cypress tests
-        env:
-          NODE_ENV: test
-        run: pnpm run cy:run --browser chrome --version ${{ matrix.chrome-version }}
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-screenshots-chrome-${{ matrix.chrome-version }}
-          path: cypress/screenshots
-          retention-days: 7
+      - name: Run Cypress tests on Latest Chrome
+        run: npx cypress run --browser chrome
