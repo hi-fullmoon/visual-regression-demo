@@ -20,8 +20,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Setup Chrome 90
         uses: browser-actions/setup-chrome@v1
@@ -29,7 +34,7 @@ jobs:
           chrome-version: 90.0.4430.212
 
       - name: Run Cypress tests on Chrome 90
-        run: npx cypress run --browser chrome
+        run: pnpm run cy:run --browser chrome
 
   test-chrome-latest:
     runs-on: ubuntu-latest
@@ -42,8 +47,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Setup Latest Chrome
         uses: browser-actions/setup-chrome@v1
@@ -51,4 +61,4 @@ jobs:
           chrome-version: latest
 
       - name: Run Cypress tests on Latest Chrome
-        run: npx cypress run --browser chrome
+        run: pnpm run cy:run --browser chrome
