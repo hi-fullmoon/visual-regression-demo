@@ -9,7 +9,7 @@
     "cy:run:chrome": "cypress run --browser chrome",
     "cy:run:firefox": "cypress run --browser firefox",
     "cy:run:edge": "cypress run --browser edge",
-    "cy:run:chrome:custom": "cypress run --browser /path/to/custom/chrome"
+    "test": "pnpm run cy:run"
   },
   "devDependencies": {
     "@babel/core": "^7.26.8",
@@ -20,6 +20,8 @@
     "@types/react-dom": "^19.0.3",
     "babel-jest": "^29.7.0",
     "cypress": "^14.0.3",
+    "@cypress/browserify-preprocessor": "^3.0.2",
+    "eslint-plugin-cypress": "^2.12.1",
     "dayjs": "^1.11.13",
     "eslint": "^9.20.1",
     "expect-puppeteer": "^11.0.0",
@@ -33,7 +35,9 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "~5.7.3",
-    "typescript-eslint": "^8.24.0"
+    "typescript-eslint": "^8.24.0",
+    "core-js": "^3.30.0",
+    "regenerator-runtime": "^0.13.11"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -1,25 +1,23 @@
-name: Image Diff
+name: Cypress Tests
 
 on:
   push:
     branches:
-      - main
+      - feat/cypress
   pull_request:
     branches:
-      - main
+      - feat/cypress
 
 jobs:
-  run-start:
+  cypress-run:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
+    strategy:
+      matrix:
+        chrome-version: [70, 100, 120]
+    name: Chrome ${{ matrix.chrome-version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install system dependencies
         run: |
@@ -27,6 +25,11 @@ jobs:
           sudo apt-get install -y libgbm-dev libnss3 libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libxrandr2 libxss1 libatk-bridge2.0-0 libgtk-3-0
           sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
           sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji fonts-freefont-ttf
+
+      - name: Install Chrome ${{ matrix.chrome-version }}
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: ${{ matrix.chrome-version }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -51,32 +54,20 @@ jobs:
             echo "No fonts directory found, skipping font installation."
           fi
 
-      - name: Check if benchmark-images exists
-        id: check_benchmark
-        run: |
-          if [ ! -d "benchmark-images" ]; then
-            echo "first_run=true" >> $GITHUB_OUTPUT
-          else
-            echo "first_run=false" >> $GITHUB_OUTPUT
-          fi
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          headless: true
+          config-file: cypress.config.ts
+          record: false
+        env:
+          NODE_ENV: test
+        run: pnpm run cy:run --browser chrome --version ${{ matrix.chrome-version }}
 
-      - name: Run pnpm diff
-        run: pnpm diff
-
-      - name: Commit benchmark images if first run
-        if: steps.check_benchmark.outputs.first_run == 'true'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add benchmark-images
-          git commit -m "chore: add initial benchmark images"
-          git push origin main
-
-      - name: Upload diff images
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: diff-images
-          path: |
-            *.png
-            !node_modules/
+          name: cypress-screenshots-chrome-${{ matrix.chrome-version }}
+          path: cypress/screenshots
           retention-days: 7
