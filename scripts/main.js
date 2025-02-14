@@ -4,10 +4,11 @@ import fs from 'fs';
 import { login } from './login.js';
 import { diff } from './diff.js';
 import { config } from './config.js';
+import { setTimeout } from 'timers/promises';
 
 async function main() {
   const browser = await puppeteer.launch({
-    headless: 'new',
+    headless: false,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -24,7 +25,7 @@ async function main() {
   await page.setViewport({ width: 1920, height: 934 });
 
   await login(page);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await page.waitForNavigation({ waitUntil: 'networkidle0' });
 
   page.on('requestfailed', (request) => {
     console.log('Request failed:', request.url(), request.failure().errorText);
@@ -38,18 +39,34 @@ async function main() {
 
   await page
     .goto(config.pageUrl, {
-      waitUntil: 'networkidle2',
+      waitUntil: 'networkidle0',
       timeout: 60000,
     })
     .catch(async (error) => {
       console.error('First attempt failed, retrying...', error);
       await page.goto(config.pageUrl, {
-        waitUntil: 'networkidle2',
+        waitUntil: 'networkidle0',
         timeout: 60000,
       });
     });
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  page.addStyleTag({
+    content: `
+      body {
+        overflow: hidden !important;
+        height: unset !important;
+      }
+      #root {
+        height: unset !important;
+      }
+      #base-layout-content {
+        height: unset !important;
+        overflow: unset !important;
+      }
+    `,
+  });
+
+  await setTimeout(2000);
 
   if (!fs.existsSync('benchmark-images')) {
     fs.mkdirSync('benchmark-images');
@@ -60,10 +77,7 @@ async function main() {
   }
 
   const pagePath = `kms-home-page-${dayjs().format('YYYYMMDDHHmm')}.png`;
-  await page.screenshot({
-    path: pagePath,
-    fullPage: true,
-  });
+  await page.screenshot({ path: pagePath, fullPage: true });
   await browser.close();
 
   diff(pagePath, 'benchmark-images/kms-home-page.png');
