@@ -1,0 +1,11 @@
+services:
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.chrome90
+    volumes:
+      - ./tests:/app/tests
+      - ./playwright.config.ts:/app/playwright.config.ts
+    ports:
+      - 9323:9323
+    command: ['npx', 'playwright', 'test', '--project=chromium', '--debug']
